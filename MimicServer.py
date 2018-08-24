@@ -17,19 +17,30 @@ class MimicConnectionConfiguration:
     @classmethod
     def ctor0(cls):
         cwd = os.getcwd()
-        defaultconnectionconfigfile = open(cwd + "\\DefaultConnectionConfiguration") #"C:\Users\LittleRed\OneDrive\BangPython\MimicServer\DefaultConnectionConfiguration.txt")
-        thestr = defaultconnectionconfigfile.readline()
-        if len(thestr) >= 0:
-            alist = thestr.split(',')
-            constructed = cls()
-            constructed._ipaddress = alist[0]
-            constructed._port = alist[1]
-            constructed._userid = alist[2]
-            constructed._password = alist[3]
-            constructed._database = alist[4]
-            constructed._schema = alist[5]
-            return constructed
-        else:
+        try:
+            defaultconnectionconfigfile = open(cwd + "\\DefaultConnectionConfiguration") #"C:\Users\LittleRed\OneDrive\BangPython\MimicServer\DefaultConnectionConfiguration.txt")
+            thestr = defaultconnectionconfigfile.readline()
+            if len(thestr) >= 0:
+                alist = thestr.split(',')
+                constructed = cls()
+                constructed._ipaddress = alist[0]
+                constructed._port = alist[1]
+                constructed._userid = alist[2]
+                constructed._password = alist[3]
+                constructed._database = alist[4]
+                constructed._schema = alist[5]
+                return constructed
+            else:
+                constructed = cls()
+                constructed._ipaddress = "127.0.0.1"
+                constructed._port = "5432"
+                constructed._userid = "postgres"
+                constructed._password = "postgres"
+                constructed._database = "mimic"
+                constructed._schema = "mimiciii"
+                return constructed
+
+        except FileNotFoundError:
             constructed = cls()
             constructed._ipaddress = "127.0.0.1"
             constructed._port = "5432"
@@ -38,6 +49,7 @@ class MimicConnectionConfiguration:
             constructed._database = "mimic"
             constructed._schema = "mimiciii"
             return constructed
+
 
     @classmethod
     def ctor1(cls, _db, _sch):
@@ -305,23 +317,30 @@ class MimicServerPlatform(PgsqlInterface):
 #
 # #msp = MimicServerPlatform.ctor1("127.0.0.1", "postgres", "public")
 
-msp = MimicServerPlatform.ctor0("postgres", "public")
-msp.connect()
-sqlstr = "SELECT * FROM admissions;"
+
+# #msp = MimicServerPlatform.ctor0("postgres", "public")
+# msp = MimicServerPlatform.ctor0("postgres", "public") #("192.168.0.13", "postgres", "public")
+# msp.connect()
+# sqlstr = "SELECT * FROM chartevents;"
+# cur = msp.connection.cursor()
+# cur.execute(sqlstr)
+# arow = cur.fetchone()
+# print(arow)
+
 #cur.execute("SELECT * FROM patients;")
 
-df = pandas.read_sql(sqlstr, msp.connection, params={'name':'value'})
-
-acounter = 0
-for each in df.iterrows():
-    #thepatient = MimicObjects.Admission.ctor1(each[1])
-    #print(thepatient)
-    anobject = MimicObjects.Admission.ctor1(each[1])
-    print(anobject)
-    #print(each[1]['subject_id'])
-    acounter+=1
-    if acounter > 5:
-        break
+# df = pandas.read_sql(sqlstr, msp.connection)
+#
+# acounter = 0
+# for each in df.iterrows():
+#     #thepatient = MimicObjects.Admission.ctor1(each[1])
+#     #print(thepatient)
+#
+#     anobject = MimicObjects.Patient.ctor1(each[1])
+#     #print(each[1]['subject_id'])
+#     acounter+=1
+#     if acounter > 5:
+#         break
 
 # acounter = 0
 # for each in range(dflength):
@@ -329,6 +348,7 @@ for each in df.iterrows():
 #     acounter += 1
 #     if acounter > 10:
 #         break
+
 
 #df1 = pandas.read_sql_table('patients', msp.connection)
 # acounter = 0

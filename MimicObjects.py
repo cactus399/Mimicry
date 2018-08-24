@@ -22,7 +22,7 @@ class Person(AutoRepr):
         self._id = _idvalue
 
 
-class Patient(Person,AutoRepr):
+class Patient(Person):
     def __init__(self):
         super().__init__()
         self._gender = ""
@@ -96,11 +96,11 @@ class Patient(Person,AutoRepr):
     def expire_flag(self, _expire_flagvalue):
         self._expire_flag = _expire_flagvalue
 
-    def __repr__(self):
-        items = ("%s = %r" % (k, v) for k, v in self.__dict__.items())
-        return "<%s: {%s}>" % (self.__class__.__name__, ', '.join(items))
+    # def __repr__(self):
+    #     items = ("%s = %r" % (k, v) for k, v in self.__dict__.items())
+    #     return "<%s: {%s}>" % (self.__class__.__name__, ', '.join(items))
 
-class CareGiver(Person,AutoRepr):
+class CareGiver(Person):
     def __init__(self):
         super().__init__()
         self._label = ""
@@ -160,7 +160,7 @@ class Event(AutoRepr):
         self._timestamp = _timestampvalue
 
 
-class MimicEvent(Event,AutoRepr):
+class MimicEvent(Event):
     def __init__(self):
         super().__init__()
         self._subject_id = -1
@@ -227,7 +227,7 @@ class MimicValue(AutoRepr):
         self._valueuom = _valueuomvalue
 
 
-class MimicValueNumeric(MimicValue,AutoRepr):
+class MimicValueNumeric(MimicValue):
     def __init__(self):
         super().__init__()
         self._valuenum = -1.0
@@ -251,7 +251,7 @@ class MimicValueNumeric(MimicValue,AutoRepr):
         self._valuenum = _valuenumvalue
 
 
-class ChartEvent(MimicEvent,AutoRepr):
+class ChartEvent(MimicEvent):
     def __init__(self):
         super().__init__()
         self._icustay_id = -1
@@ -614,7 +614,7 @@ class DateTimeEvent(MimicEvent,AutoRepr):
 
 
 #______________________^ events, eventspans ^____________________________________________________
-#______________________^ chartevent, labevent, microbiologyevent, datetimeevent, noteevent_______
+#______________________^ chartevent, labevent, microbiologyevent, datetimeevent, noteevent_______`
 
 
 class EventSpan:
