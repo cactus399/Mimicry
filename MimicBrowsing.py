@@ -39,7 +39,7 @@
 
 import pandas
 import psycopg2
-import Mimicry.MimicServer as MimicServer
+import MimicServer
 
 
 class Logical:
@@ -112,12 +112,9 @@ class ConditionBundle:
         if _conditionunits != None:
             numunits = len(_conditionunits)
             if numunits > 0:
-                if _logicals == None:
-                    self._logicals = [Logical(1)]*(numunits - 1)
-                else:
-                    self._logicals = _logicals
-            # else:
-            #     self._logicals
+                self._logicals = [Logical(1)]*(numunits - 1)
+            else:
+                self._logicals = _logicals
         self._conditionunits = _conditionunits
 
     def __str__(self):
@@ -141,7 +138,7 @@ class ConditionBundle:
 
 
 class ConditionCollection:
-    def __init__(self, _unitsbundles=None, _logicals=None):
+    def __init__(self, _unitsbundles=[], _logicals=[]):
         self._unitsbundles = _unitsbundles
         self._logicals = _logicals
 
@@ -161,6 +158,23 @@ class ConditionCollection:
 
     def __repr__(self):
         return self.__str__()
+
+    @property
+    def filters(self):
+        return self._unitsbundles
+
+    @property
+    def logicals(self):
+        return self._logicals
+
+    @property
+    def filtercount(self):
+        return len(self._unitsbundles)
+
+    @property
+    def logicalcount(self):
+        return len(self._logicals)
+#__________________________^ conditions: condition UNIT, BUNDLEs, COLLECTIONs.______________
 
 
 class SqlCommandType:
@@ -198,40 +212,90 @@ class SqlCommandType:
 
 
 class SqlColumnCollection:
+    def __init__(self, _columns=['*']):
+        self._columns = _columns
 
+    def __str__(self):
+        thestr = ""
+        counter = 0
+        capped = len(self._columns)
+        if capped > 0:
+            for eachcol in self._columns:
+                thestr += eachcol
+                if counter < capped - 1:
+                    thestr += ', '
+        return thestr
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class SqlCommand:
-    def __init__(self, _sqlcommandtype=SqlCommandType(0), _columns=['*'], _tablenames="", _filtercoll=ConditionCollection()):
+    def __init__(self, _sqlcommandtype=SqlCommandType(0), _columns=SqlColumnCollection(), _tablename="", _filtercoll=ConditionCollection()):
         self._sqlcommandtype = _sqlcommandtype
-        self._tablenames = _tablenames
+        self._tablename = _tablename
         self._columns = _columns
         self._filtercollection = _filtercoll
+
+        ## - SELECT (* // col1, col2) FROM (tablename) WHERE (str(filtercollection))
 
     def __str__(self):
         thestr = ""
         thestr += str(self._sqlcommandtype)
-        thestr += " "
-        acounter = 0
-        acap = len(self._columns)
-        for eachcol in self._columns:
-            if acounter
-        self._tablenames
-        thestr +=
-        return thestr
+        ##thestr += " "
+        # Part 1 : ^ "SELECT "
 
+        thestr += " "
+        thestr += str(self._columns)
+        # acounter = 0
+        # acap = len(self._columns)
+        # # if columncount is greater than 1,must add them according to following nomenclature:
+        # # SELECT col1, col2, col3... WHERE (filtercollection str);
+        # for eachcol in self._columns:
+        #     thestr += eachcol
+        #     if acounter < acap - 1:
+        #         thestr += ', '
+
+
+        # Part 2 : ^ "*" or "colname1, colname2..."
+
+        thestr += " FROM "
+        thestr += self._tablename
+        # Part 2a: ^ " FROM tablename
+
+        acounter = 0
+        acap = self._filtercollection.filtercount
+        if acap > 0:
+            thestr += ' WHERE '
+            thestr += str(self._filtercollection)
+            # for eachfilter in self._filtercollection.filters:
+            #     thestr += str(eachfilter)
+            #     if acounter < acap - 1:
+            #         thestr += ', '
+            #     acounter += 1
+            #     #--
+        # Part 3 : ^ " WHERE str(filtercollection)
+
+        thestr += ";"
+        # Part 4 : ^ ";"
+
+        return thestr
+    ## ^ returns something like "SELECT * FROM table WHERE a=1 AND b=2 AND (c<3 OR d>4)"
+
+    def __repr__(self):
+        return self.__str__()
 
     @property
-    def tablenames(self):
-        return self._tablenames
+    def tablename(self):
+        return self._tablename
 
-    @tablenames.setter
-    def tablenames(self, _tablenamesvalue):
-        self._tablenames = _tablenamesvalue
+    @tablename.setter
+    def tablename(self, _tablenamevalue):
+        self._tablename = _tablenamevalue
 
     @property
     def columns(self):
-        return self._tablenames
+        return self._columns
 
     @columns.setter
     def columns(self, _columnsvalue):
@@ -244,21 +308,56 @@ class SqlCommand:
     @filtercollection.setter
     def filtercollection(self, _filtercollectionvalue):
         self._filtercollection = _filtercollectionvalue
+# ____________________^ SqlColumnCollection, SqlCommand, SqlCommandType ___________
+
+
+class MimicCursor:
+    def __init__(self, _tablesearchspace=[], _tableindex=-1, _sqlcmd=SqlCommand()):
+        self._tablesearchspace = _tablesearchspace
+        self._tableindex = _tableindex
+        self._sqlcmd = _sqlcmd
+
+    @property
+    def tablesearchspace(self):
+        return self._tablesearchspace
+
+    @property
+    def tablesearchspaceLength(self):
+        return len(self.tablesearchspace)
+
+    @property
+    def focusedtableindex(self):
+        return self._tableindex
+
+    @focusedtableindex.setter
+    def focusedtableindex(self, _tableindexvalue):
+        if _tableindexvalue < self.tablesearchspaceLength:
+            self._tableindex = _tableindexvalue
+        else:
+            self._tableindex = self.tablesearchspaceLength - 1
+
+    @property
+    def focusedtablename(self):
+        if self.tablesearchspaceLength > 0:
+            return self.tablesearchspace[self.focusedtableindex]
+        else:
+            return ""
 
 
 
-
-# class MimicBrowser(MimicServer.MimicServerPlatform):
-#     def __init__(self):
-
-# acommand = SqlCommand([tablenames], [columns], conditioncollection])
 
 
 cu1 = ConditionUnit('subject_id,=,3015')
 cu2 = ConditionUnit('charttime,=,2017-10-28')
 cu3 = ConditionUnit('hadm_id,=,100')
-cb1 = ConditionBundle([cu1,cu2,cu3],['AND','AND'])
+cb1 = ConditionBundle([cu1,cu2,cu3])
 cu4 = ConditionUnit('dischtime,<,2017-10-30')
 cc1 = ConditionCollection([cu4,cb1],['AND'])
-print(cc1)
+
+# # thing = SqlColumnCollection()
+# # print(str(thing))
+#
+# sqlrequest = SqlCommand(_filtercoll=cc1, _tablename='patients')
+# print(str(sqlrequest))
+# #print(cc1)
 

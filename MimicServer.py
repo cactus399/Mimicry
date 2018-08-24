@@ -298,6 +298,14 @@ class MimicServerPlatform(PgsqlInterface):
         else:
             mirrored = MimicServerPlatform.ctor2(_newconnstr, self.tablesconfiguration)
             self = mirrored
+
+# all events (including cpt_events)
+# chartevents, cpt_events,
+# labevents, datetimeevents,
+# microbiologyevents
+# noteevents
+#
+
 # ________________________^ METHODS ______________________________
 
 
