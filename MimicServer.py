@@ -299,6 +299,16 @@ class MimicServerPlatform(PgsqlInterface):
             mirrored = MimicServerPlatform.ctor2(_newconnstr, self.tablesconfiguration)
             self = mirrored
 
+
+
+msp = MimicServerPlatform.ctor0("postgres", "public")
+thecurse = msp.cursor("curse")
+thestr = "SELECT * FROM patients;"
+thecurse.execute(thestr)
+avar = thecurse.fetchall()
+
+print(avar)
+
 # all events (including cpt_events)
 # chartevents, cpt_events,
 # labevents, datetimeevents,

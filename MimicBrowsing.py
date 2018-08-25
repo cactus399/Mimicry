@@ -39,7 +39,7 @@
 
 import pandas
 import psycopg2
-import MimicServer
+import Mimicry.MimicServer as MimicServer
 
 
 class Logical:
@@ -312,14 +312,22 @@ class SqlCommand:
 
 
 class MimicCursor:
-    def __init__(self, _tablesearchspace=[], _tableindex=-1, _sqlcmd=SqlCommand()):
+    # def __init__(self, _tablesearchspace=[], _tableindex=-1, _sqlcmd=SqlCommand()):
+    #     self._tablesearchspace = _tablesearchspace
+    #     self._tableindex = _tableindex
+    #     self._sqlcmd = _sqlcmd
+
+    def __init__(self, _tablesearchspace=[], _tableindex=-1):
         self._tablesearchspace = _tablesearchspace
         self._tableindex = _tableindex
-        self._sqlcmd = _sqlcmd
 
     @property
     def tablesearchspace(self):
         return self._tablesearchspace
+
+    @tablesearchspace.setter
+    def tablesearchspace(self, _value):
+        self._tablesearchspace = _value
 
     @property
     def tablesearchspaceLength(self):
@@ -342,6 +350,25 @@ class MimicCursor:
             return self.tablesearchspace[self.focusedtableindex]
         else:
             return ""
+
+    @focusedtablename.setter
+    def focusedtablename(self, _value):
+        lowervalue = _value.lower()
+        counter = 0
+        for eachstr in self.tablesearchspace:
+            if lowervalue == eachstr:
+                self._tableindex = counter
+                break
+            else:
+                counter += 1
+
+class PlatformBrowser(MimicServer.MimicServerPlatform, MimicCursor):
+    def __init__(self):
+        super().__init__()
+
+
+
+
 
 
 
